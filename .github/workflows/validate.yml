@@ -15,4 +15,11 @@ jobs:
           version: 4.3.0
           use-dotnet: false
       - name: Import and validate project
-        run: godot --headless --path . --editor --quit
+        shell: bash
+        run: |
+          set -o pipefail
+          godot --headless --path . --editor --quit 2>&1 | tee godot-validation.log
+          if grep -E 'SCRIPT ERROR:|ERROR:' godot-validation.log; then
+            echo 'Godot reported script or project errors.'
+            exit 1
+          fi
