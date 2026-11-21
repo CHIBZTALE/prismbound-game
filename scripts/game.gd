@@ -7,6 +7,7 @@ const DESPAWN_Z := 12.0
 
 var lane := 1
 var score := 0
+var score_progress := 0.0
 var shards := 0
 var speed := 13.0
 var elapsed := 0.0
@@ -198,9 +199,11 @@ func _spawn_object(target_lane: int, is_shard: bool, z: float) -> void:
     node.set_meta("is_shard", is_shard)
     objects.append(node)
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
     if ended:
         return
+    score_progress += delta * 10.0
+    score = int(score_progress)
     for item in objects.duplicate():
         if abs(item.position.z - PLAYER_Z) < 0.85 and abs(item.position.x - player.position.x) < 0.95:
             if item.get_meta("is_shard", false):
@@ -211,7 +214,6 @@ func _physics_process(_delta: float) -> void:
             else:
                 _game_over()
                 return
-    score += 1
 
 func _build_hud() -> void:
     hud = CanvasLayer.new()
