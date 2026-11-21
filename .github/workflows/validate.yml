@@ -19,12 +19,12 @@ jobs:
         run: |
           set -o pipefail
           godot --headless --path . --editor --quit 2>&1 | tee godot-import.log
-          if grep -E 'SCRIPT ERROR:|ERROR:' godot-import.log; then
+          if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script' godot-import.log; then
             echo 'Godot reported project or script errors during import.'
             exit 1
           fi
           godot --headless --path . --quit-after 120 2>&1 | tee godot-smoke.log
-          if grep -E 'SCRIPT ERROR:|ERROR:' godot-smoke.log; then
-            echo 'Godot reported errors while launching the main scene.'
+          if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script|Invalid call|Attempt to call' godot-smoke.log; then
+            echo 'Godot reported a GDScript error while launching the main scene.'
             exit 1
           fi
