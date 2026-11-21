@@ -63,12 +63,12 @@ func _input(event: InputEvent) -> void:
             touch_start = event.position
             dragging = true
         elif dragging:
-            var dx := event.position.x - touch_start.x
+            var dx: float = event.position.x - touch_start.x
             if abs(dx) > 28:
                 _change_lane(1 if dx > 0 else -1)
             dragging = false
     elif event is InputEventScreenDrag:
-        var dx := event.position.x - touch_start.x
+        var dx: float = event.position.x - touch_start.x
         if abs(dx) > 65:
             _change_lane(1 if dx > 0 else -1)
             touch_start = event.position
