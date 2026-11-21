@@ -9,9 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install Godot
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y godot
+      - name: Install Godot 4.3
+        uses: chickensoft/setup-godot-action@v1
+        with:
+          version: 4.3.0
+          use-dotnet: false
       - name: Import and validate project
         run: godot --headless --path . --editor --quit
