@@ -1,5 +1,7 @@
 extends Node3D
 
+# Android debug APK builds are automated through GitHub Actions.
+
 const LANES := [-2.4, 0.0, 2.4]
 const PLAYER_Z := 5.0
 const SPAWN_Z := -34.0
