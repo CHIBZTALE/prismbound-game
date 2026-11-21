@@ -28,7 +28,9 @@ jobs:
           packages: platform-tools
 
       - name: Install Android build packages
-        run: sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+        run: |
+          yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses
+          sdkmanager --sdk_root="$ANDROID_HOME" "platform-tools" "platforms;android-34" "build-tools;34.0.0" "cmake;3.10.2.4988404" "ndk;23.2.8568313"
 
       - name: Install Godot 4.3 and Android export templates
         uses: chickensoft-games/setup-godot@v1
