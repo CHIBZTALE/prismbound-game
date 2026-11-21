@@ -14,12 +14,17 @@ jobs:
         with:
           version: 4.3.0
           use-dotnet: false
-      - name: Import and validate project
+      - name: Import, parse and smoke-test game scene
         shell: bash
         run: |
           set -o pipefail
-          godot --headless --path . --editor --quit 2>&1 | tee godot-validation.log
-          if grep -E 'SCRIPT ERROR:|ERROR:' godot-validation.log; then
-            echo 'Godot reported script or project errors.'
+          godot --headless --path . --editor --quit 2>&1 | tee godot-import.log
+          if grep -E 'SCRIPT ERROR:|ERROR:' godot-import.log; then
+            echo 'Godot reported project or script errors during import.'
+            exit 1
+          fi
+          godot --headless --path . --quit-after 120 2>&1 | tee godot-smoke.log
+          if grep -E 'SCRIPT ERROR:|ERROR:' godot-smoke.log; then
+            echo 'Godot reported errors while launching the main scene.'
             exit 1
           fi
