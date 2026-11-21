@@ -6,11 +6,11 @@ on:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Install Godot 4.3
-        uses: chickensoft/setup-godot-action@v1
+        uses: chickensoft-games/setup-godot@v1
         with:
           version: 4.3.0
           use-dotnet: false
