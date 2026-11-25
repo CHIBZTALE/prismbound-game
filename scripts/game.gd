@@ -84,75 +84,102 @@ func _read_controls() -> void:
 func _change_lane(direction: int) -> void:
     lane = clampi(lane + direction, 0, 2)
 
+
 func _build_world() -> void:
     var env := Environment.new()
     env.background_mode = Environment.BG_SKY
     env.sky = Sky.new()
     var sky_mat := ProceduralSkyMaterial.new()
-    sky_mat.sky_top_color = Color(0.012, 0.025, 0.09)
-    sky_mat.sky_horizon_color = Color(0.10, 0.035, 0.19)
-    sky_mat.ground_bottom_color = Color(0.008, 0.012, 0.035)
-    sky_mat.ground_horizon_color = Color(0.035, 0.018, 0.09)
+    sky_mat.sky_top_color = Color(0.008, 0.014, 0.055)
+    sky_mat.sky_horizon_color = Color(0.075, 0.018, 0.16)
+    sky_mat.ground_bottom_color = Color(0.004, 0.006, 0.02)
+    sky_mat.ground_horizon_color = Color(0.025, 0.012, 0.065)
     env.sky.sky_material = sky_mat
     env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-    env.ambient_light_color = Color(0.45, 0.50, 0.85)
-    env.ambient_light_energy = 0.65
+    env.ambient_light_color = Color(0.34, 0.43, 0.78)
+    env.ambient_light_energy = 0.8
+    env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
     env.glow_enabled = true
-    env.glow_intensity = 0.75
+    env.glow_intensity = 0.9
+    env.glow_strength = 1.15
+    env.glow_bloom = 0.12
+    env.fog_enabled = true
+    env.fog_light_color = Color(0.045, 0.025, 0.12)
+    env.fog_density = 0.012
     world_environment = WorldEnvironment.new()
     world_environment.environment = env
     add_child(world_environment)
 
     var camera := Camera3D.new()
-    camera.position = Vector3(0, 8.5, 13.5)
-    camera.rotation_degrees = Vector3(-27, 0, 0)
-    camera.fov = 55
+    camera.position = Vector3(0, 8.1, 14.2)
+    camera.rotation_degrees = Vector3(-26, 0, 0)
+    camera.fov = 54
     add_child(camera)
     camera.current = true
 
     var key := DirectionalLight3D.new()
     key.rotation_degrees = Vector3(-48, -25, 0)
-    key.light_energy = 1.8
+    key.light_color = Color(0.65, 0.82, 1.0)
+    key.light_energy = 1.65
     key.shadow_enabled = true
     add_child(key)
 
-    _add_box("Track", Vector3(8.8, 0.35, 62), Vector3(0, -1.15, -12), Color(0.025, 0.035, 0.095), 0.32, 0.8)
-    for x in [-3.65, -1.2, 1.2, 3.65]:
-        _add_box("NeonRail", Vector3(0.055, 0.08, 62), Vector3(x, -0.88, -12), Color(0.05, 0.78, 1.0), 0.18, 0.22, true)
-    for z in range(-40, 13, 4):
-        _add_box("TrackMark", Vector3(0.035, 0.018, 1.1), Vector3(0, -0.96, z), Color(0.15, 0.23, 0.48), 0.1, 0.2)
+    var rim := OmniLight3D.new()
+    rim.position = Vector3(0, 5.5, -12)
+    rim.light_color = Color(0.16, 0.28, 1.0)
+    rim.light_energy = 2.4
+    rim.omni_range = 24.0
+    add_child(rim)
+
+    _add_box("ObsidianTrack", Vector3(9.2, 0.42, 72), Vector3(0, -1.18, -15), Color(0.012, 0.018, 0.045), 0.92, 0.16)
+    _add_box("TrackGlass", Vector3(7.8, 0.035, 70), Vector3(0, -0.955, -15), Color(0.025, 0.045, 0.105), 0.72, 0.12)
+    for x in [-4.45, 4.45]:
+        _add_box("ChromeOuterRail", Vector3(0.18, 0.24, 72), Vector3(x, -0.91, -15), Color(0.32, 0.48, 0.72), 0.96, 0.11)
+        _add_box("CyanRailLight", Vector3(0.045, 0.055, 72), Vector3(x * 0.975, -0.77, -15), Color(0.02, 0.72, 1.0), 0.35, 0.1, true)
+    for x in [-1.2, 1.2]:
+        _add_box("LaneDivider", Vector3(0.035, 0.018, 70), Vector3(x, -0.925, -15), Color(0.08, 0.24, 0.55), 0.8, 0.18, true)
+    for z in range(-48, 18, 4):
+        _add_box("LanePulse", Vector3(0.045, 0.022, 1.25), Vector3(0, -0.925, z), Color(0.12, 0.3, 0.72), 0.65, 0.18, true)
+    for z in range(-48, 12, 12):
+        for side in [-1.0, 1.0]:
+            _add_box("RiftPylon", Vector3(0.42, 5.2, 0.48), Vector3(side * 6.0, 1.25, z), Color(0.035, 0.045, 0.12), 0.86, 0.18)
+            _add_box("PylonNeon", Vector3(0.055, 4.4, 0.07), Vector3(side * 5.76, 1.25, z), Color(0.16, 0.22, 1.0), 0.5, 0.12, true)
+        _add_box("DistantRiftBeam", Vector3(12.0, 0.12, 0.18), Vector3(0, 4.05, z), Color(0.18, 0.12, 0.58), 0.75, 0.14, true)
+
 
 func _build_player() -> void:
     player = Node3D.new()
-    player.position = Vector3(0, 0, PLAYER_Z)
+    player.position = Vector3(0, -0.05, PLAYER_Z)
     add_child(player)
-    var body := MeshInstance3D.new()
-    var mesh := BoxMesh.new()
-    mesh.size = Vector3(1.05, 1.15, 0.82)
-    body.mesh = mesh
-    var mat := StandardMaterial3D.new()
-    mat.albedo_color = Color(0.05, 0.88, 1.0)
-    mat.metallic = 0.82
-    mat.roughness = 0.12
-    mat.emission_enabled = true
-    mat.emission = Color(0.02, 0.55, 1.0)
-    mat.emission_energy_multiplier = 1.5
-    body.material_override = mat
-    player.add_child(body)
-    var crown := MeshInstance3D.new()
-    var prism := PrismMesh.new()
-    prism.size = Vector3(0.82, 0.72, 0.72)
-    crown.mesh = prism
-    crown.position.y = 0.83
-    var gold := StandardMaterial3D.new()
-    gold.albedo_color = Color(1.0, 0.68, 0.15)
-    gold.metallic = 0.92
-    gold.roughness = 0.09
-    gold.emission_enabled = true
-    gold.emission = Color(1.0, 0.28, 0.025)
-    gold.emission_energy_multiplier = 1.0
-    crown.material_override = gold
-    player.add_child(crown)
+
+    var hull_mat := _gloss(Color(0.035, 0.09, 0.19), 0.94, 0.1)
+    var chrome := _gloss(Color(0.48, 0.72, 0.92), 0.98, 0.08)
+    var cyan := _gloss(Color(0.015, 0.72, 1.0), 0.55, 0.12, Color(0.015, 0.68, 1.0), 2.4)
+    var gold := _gloss(Color(1.0, 0.58, 0.12), 0.9, 0.1, Color(1.0, 0.22, 0.015), 1.6)
+
+    var hull := BoxMesh.new()
+    _visual_part(player, hull, Vector3(0, 0.0, 0), Vector3(0.92, 0.42, 1.55), hull_mat, Vector3(0, 0, 0))
+    var nose := PrismMesh.new()
+    _visual_part(player, nose, Vector3(0, 0.02, -0.78), Vector3(0.9, 0.48, 0.72), chrome, Vector3(0, 0, 0))
+    var canopy := SphereMesh.new()
+    _visual_part(player, canopy, Vector3(0, 0.31, -0.05), Vector3(0.54, 0.34, 0.72), cyan)
+    var core := SphereMesh.new()
+    _visual_part(player, core, Vector3(0, 0.03, 0.32), Vector3(0.42, 0.22, 0.48), gold)
+    for side in [-1.0, 1.0]:
+        var wing := BoxMesh.new()
+        _visual_part(player, wing, Vector3(side * 0.78, -0.02, 0.22), Vector3(0.72, 0.12, 0.72), chrome, Vector3(0, 0, side * -0.12))
+        var wing_light := BoxMesh.new()
+        _visual_part(player, wing_light, Vector3(side * 0.82, 0.055, 0.18), Vector3(0.58, 0.035, 0.12), cyan)
+        var thruster := CylinderMesh.new()
+        _visual_part(player, thruster, Vector3(side * 0.38, -0.08, 0.78), Vector3(0.2, 0.16, 0.2), gold, Vector3(PI / 2.0, 0, 0))
+    var front_light := BoxMesh.new()
+    _visual_part(player, front_light, Vector3(0, -0.06, -1.04), Vector3(0.42, 0.07, 0.08), cyan)
+    var underglow := OmniLight3D.new()
+    underglow.position = Vector3(0, -0.42, 0.1)
+    underglow.light_color = Color(0.02, 0.55, 1.0)
+    underglow.light_energy = 1.8
+    underglow.omni_range = 4.5
+    player.add_child(underglow)
 
 func _spawn_pattern() -> void:
     var obstacle_lane := randi_range(0, 2)
@@ -162,41 +189,41 @@ func _spawn_pattern() -> void:
         shard_lane = (shard_lane + 1 + randi_range(0, 1)) % 3
     _spawn_object(shard_lane, true, SPAWN_Z - 5.0)
 
+
 func _spawn_object(target_lane: int, is_shard: bool, z: float) -> void:
     var node := Node3D.new()
-    node.position = Vector3(LANES[target_lane], -0.05, z)
+    node.position = Vector3(LANES[target_lane], 0.0, z)
     add_child(node)
-    var mesh_instance := MeshInstance3D.new()
+    var chrome := _gloss(Color(0.28, 0.38, 0.56), 0.96, 0.12)
+    var amber := _gloss(Color(1.0, 0.56, 0.08), 0.9, 0.08, Color(1.0, 0.24, 0.015), 2.0)
+    var crimson := _gloss(Color(0.38, 0.012, 0.075), 0.82, 0.13, Color(1.0, 0.008, 0.09), 1.8)
+    var neon := _gloss(Color(0.02, 0.78, 1.0), 0.55, 0.1, Color(0.02, 0.72, 1.0), 2.5)
+
     if is_shard:
-        var mesh := SphereMesh.new()
-        mesh.radius = 0.43
-        mesh.height = 0.86
-        mesh_instance.mesh = mesh
-        var mat := StandardMaterial3D.new()
-        mat.albedo_color = Color(1.0, 0.55, 0.08)
-        mat.metallic = 0.88
-        mat.roughness = 0.08
-        mat.emission_enabled = true
-        mat.emission = Color(1.0, 0.24, 0.015)
-        mat.emission_energy_multiplier = 2.1
-        mesh_instance.material_override = mat
+        var crystal := PrismMesh.new()
+        _visual_part(node, crystal, Vector3(0, 0.12, 0), Vector3(0.72, 0.9, 0.72), amber, Vector3(0.15, 0.2, 0.12))
+        var inner := SphereMesh.new()
+        _visual_part(node, inner, Vector3(0, 0.12, 0), Vector3(0.22, 0.42, 0.22), neon)
+        var ring := CylinderMesh.new()
+        ring.top_radius = 0.58
+        ring.bottom_radius = 0.58
+        ring.height = 0.055
+        _visual_part(node, ring, Vector3(0, -0.38, 0), Vector3(1, 1, 1), chrome)
     else:
-        var mesh := BoxMesh.new()
-        mesh.size = Vector3(1.45, 1.75, 1.05)
-        mesh_instance.mesh = mesh
-        var mat := StandardMaterial3D.new()
-        mat.albedo_color = Color(0.95, 0.035, 0.22)
-        mat.metallic = 0.65
-        mat.roughness = 0.16
-        mat.emission_enabled = true
-        mat.emission = Color(0.9, 0.015, 0.08)
-        mat.emission_energy_multiplier = 1.2
-        mesh_instance.material_override = mat
-    node.add_child(mesh_instance)
+        var block := BoxMesh.new()
+        _visual_part(node, block, Vector3(0, 0.05, 0), Vector3(1.45, 1.75, 0.92), crimson)
+        var face := BoxMesh.new()
+        _visual_part(node, face, Vector3(0, 0.05, -0.48), Vector3(1.18, 1.48, 0.035), _gloss(Color(0.055, 0.008, 0.035), 0.75, 0.16))
+        for side in [-1.0, 1.0]:
+            var trim := BoxMesh.new()
+            _visual_part(node, trim, Vector3(side * 0.63, 0.05, -0.51), Vector3(0.07, 1.72, 0.06), neon)
+        var crown := BoxMesh.new()
+        _visual_part(node, crown, Vector3(0, 0.96, 0), Vector3(1.58, 0.09, 1.02), chrome)
+
     var light := OmniLight3D.new()
-    light.light_color = Color(1.0, 0.35, 0.12) if is_shard else Color(1.0, 0.02, 0.12)
-    light.light_energy = 1.4
-    light.omni_range = 3.0
+    light.light_color = Color(1.0, 0.48, 0.08) if is_shard else Color(1.0, 0.015, 0.12)
+    light.light_energy = 1.5
+    light.omni_range = 3.6
     node.add_child(light)
     node.set_meta("is_shard", is_shard)
     objects.append(node)
@@ -273,6 +300,30 @@ func _game_over() -> void:
 
 func _restart() -> void:
     get_tree().reload_current_scene()
+
+func _gloss(color: Color, metallic: float, roughness: float, glow: Color = Color.BLACK, glow_energy: float = 0.0) -> StandardMaterial3D:
+    var mat := StandardMaterial3D.new()
+    mat.albedo_color = color
+    mat.metallic = metallic
+    mat.roughness = roughness
+    mat.clearcoat_enabled = true
+    mat.clearcoat = 1.0
+    mat.clearcoat_roughness = 0.06
+    if glow_energy > 0.0:
+        mat.emission_enabled = true
+        mat.emission = glow
+        mat.emission_energy_multiplier = glow_energy
+    return mat
+
+func _visual_part(parent: Node3D, mesh: Mesh, pos: Vector3, part_scale: Vector3, material: Material, rot: Vector3 = Vector3.ZERO) -> MeshInstance3D:
+    var instance := MeshInstance3D.new()
+    instance.mesh = mesh
+    instance.position = pos
+    instance.scale = part_scale
+    instance.rotation = rot
+    instance.material_override = material
+    parent.add_child(instance)
+    return instance
 
 func _add_box(label: String, size: Vector3, pos: Vector3, color: Color, metallic: float, roughness: float, emissive := false) -> void:
     var mesh_instance := MeshInstance3D.new()
